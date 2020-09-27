@@ -33,7 +33,8 @@ const filterByUniqueTitle = (data) => {
 
 //get unique domain with higest domain rating
 const uniqueDomainWithMaxDomainRating = (data) => {
-    let _daata = groupBy(data, 'domain');
+    let _daata = groupBy(data, 'Content URL');
+    console.log('grouped data ', _daata);
 
     let maxDomainRating = [];
     forEach(_daata, function (value, key) {
