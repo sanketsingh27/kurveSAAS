@@ -1,73 +1,109 @@
-import React from 'react';
-import Navbar from './navbar';
-import { Grid, Input, Button, Box } from '@material-ui/core';
+import React, { useState } from 'react';
+import {
+    Grid,
+    Input,
+    Button,
+    Box,
+    TextField,
+    Container,
+    IconButton,
+} from '@material-ui/core';
 import Papa from 'papaparse';
-import { Assignment, Book } from '@material-ui/icons';
+import { Assignment, Cancel } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { filterCSVdata } from './filterData';
-
-const useStyles = makeStyles({
-    root: {
-        background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-        border: 0,
-        borderRadius: 3,
-        boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-        color: 'white',
-        height: 48,
-        padding: '0 30px',
-    },
-});
-
-let fileReader = undefined;
-
-const parseFile = () => {
-    let { data: parsedData } = Papa.parse(fileReader.result, { header: true });
-    filterCSVdata(parsedData);
+import fileSaver from 'file-saver';
+import BasicTable from './tabel';
+const clearInput = () => {
+    document.getElementById('fileInput').value = '';
 };
-
-const processFile = (file) => {
-    fileReader = new FileReader();
-    fileReader.readAsText(file);
-    fileReader.onloadend = parseFile;
-};
-
 const Layout = () => {
-    const classes = useStyles();
+    // const classes = useStyles();
+    const [keys, setKeysValue] = useState('');
+
+    let fileReader = undefined;
+    const [filteredData, setFilteredData] = useState(null);
+
+    const parseFile = () => {
+        let { data: parsedData } = Papa.parse(fileReader.result, {
+            header: true,
+        });
+
+        setFilteredData(filterCSVdata(parsedData, keys));
+        console.log('Final Details', filteredData);
+
+        // clearInput();
+    };
+
+    const processFile = async (file) => {
+        fileReader = new FileReader();
+        fileReader.readAsText(file);
+        fileReader.onloadend = parseFile;
+    };
+
+    const downloadFilteredFile = () => {
+        const csv = Papa.unparse(filteredData);
+        const csvData = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        fileSaver.saveAs(csvData, 'filteredData.csv');
+    };
 
     return (
         <>
-            <Grid
-                style={{ marginTop: 20, marginLeft: 30, marginRight: 30 }}
-                container
-                justify="space-around"
-            >
-                <Grid item>
-                    <Button
-                        size="medium"
-                        variant="outlined"
-                        style={{ borderRadius: 50 }}
+            <Container>
+                <Box m={3}>
+                    <Grid
+                        container
+                        spacing={2}
+                        direction="row"
+                        justify="space-evenly"
+                        alignItems="flex-start"
                     >
-                        <Assignment />
-                        Test Me{' '}
-                    </Button>
-                </Grid>
-
-                <Grid item>
-                    <Button size="medium" variant="contained" color="primary">
-                        <Book />
-                    </Button>
-                </Grid>
-            </Grid>
-            <Button className={classes.root}>Hook</Button>
-            <br />
-
-            <Box m={1}>
-                <Input
-                    onChange={(e) => processFile(e.target.files[0])}
-                    id="fileInput"
-                    type="file"
-                />
-            </Box>
+                        <Grid item xs={5}>
+                            <TextField
+                                id="outlined-multiline-static"
+                                fullWidth={true}
+                                multiline
+                                rows={4}
+                                value={keys}
+                                label="Restricted keywords"
+                                variant="outlined"
+                                onChange={(e) => setKeysValue(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Input
+                                onChange={(e) => processFile(e.target.files[0])}
+                                id="fileInput"
+                                type="file"
+                            />
+                            <IconButton
+                                color="primary"
+                                component="span"
+                                onClick={clearInput}
+                            >
+                                <Cancel />
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <Button
+                                size="medium"
+                                variant="outlined"
+                                color="primary"
+                                style={{ borderRadius: 50 }}
+                                onClick={downloadFilteredFile}
+                            >
+                                <Assignment />
+                                Download New File
+                            </Button>
+                        </Grid>
+                    </Grid>
+                    <Grid container>
+                        {filteredData !== null && (
+                            <BasicTable data={filteredData} />
+                        )}
+                    </Grid>
+                </Box>
+            </Container>
         </>
     );
 };

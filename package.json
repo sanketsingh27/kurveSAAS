@@ -12,6 +12,7 @@
     "apollo-server": "^2.16.1",
     "apollo-server-express": "^2.16.1",
     "express": "^4.17.1",
+    "file-saver": "^2.0.2",
     "fontsource-roboto": "^2.2.6",
     "lodash": "^4.17.20",
     "mongoose": "^5.10.0",
