@@ -18,7 +18,7 @@ const getDomainFromURLs = (data) => {
     let filteredData = data.map((i) => {
         let url = i['Content URL'];
 
-        i['Content URL'] = url
+        i.Domain = url
             .match(/([^:]*:\/\/)?([^\/]*\.)*([^\/\.]+)\.[^\/]+/g)[0]
             .replace(/.+\/\/|www.|\]+/g, '');
         return i;
@@ -33,7 +33,7 @@ const filterByUniqueTitle = (data) => {
 
 //get unique domain with higest domain rating
 const uniqueDomainWithMaxDomainRating = (data) => {
-    let _daata = groupBy(data, 'Content URL');
+    let _daata = groupBy(data, 'Domain');
     console.log('grouped data ', _daata);
 
     let maxDomainRating = [];
